@@ -1,0 +1,71 @@
+name: livewarning
+description: A LiveWarning Install progress tool
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^0.1.2
+
+  firebase_core: ^0.4.3+1
+  shared_preferences: ^0.5.7
+  cloud_firestore: ^0.13.5
+  animated_text_kit: ^2.0.0
+  beauty_textfield: ^0.0.1
+  bot_toast: ^2.2.1
+  progress_indicator_button: ^0.0.3
+  flutter_spinkit: ^4.1.1+1
+  url_launcher: ^5.4.5
+  easy_dialog: ^1.0.5
+  keyboard_actions: ^3.2.0
+
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_launcher_icons: ^0.7.5
+
+flutter_icons:
+  image_path: "icon/icon.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "icon/background.png"
+
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - images/
+
+
+
+  fonts:
+    - family: Courgette
+      fonts:
+        - asset: fonts/Courgette-Regular.ttf
+    - family: Pacifico
+      fonts:
+        - asset: fonts/Pacifico-Regular.ttf
+    - family: Yuanti
+      fonts:
+        - asset: fonts/Yuanti.ttc
+    - family: Heiti
+      fonts:
+        - asset: fonts/STHeiti-Medium.ttc
+    - family: KaushanScript
+      fonts:
+        - asset: fonts/KaushanScript-Regular.ttf
+    - family: Lato
+      fonts:
+        - asset: fonts/Lato-Regular.ttf
+    - family: LilitaOne
+      fonts:
+        - asset: fonts/LilitaOne-Regular.ttf

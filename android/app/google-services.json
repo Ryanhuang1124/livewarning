@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "327506227826",
+    "firebase_url": "https://live-warning.firebaseio.com",
+    "project_id": "live-warning",
+    "storage_bucket": "live-warning.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327506227826:android:95bfd613ca6d94f3dbc8eb",
+        "android_client_info": {
+          "package_name": "com.ryanhuang.livewarning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327506227826-7plvm8j1qjr4rrbb9dgbkdm29g858583.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6WUayJZc-eXmQPJfHIaP-ulwZzh8Cut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327506227826-7plvm8j1qjr4rrbb9dgbkdm29g858583.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
