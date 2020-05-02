@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:easy_dialog/easy_dialog.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
+import 'package:simple_search_bar/simple_search_bar.dart';
 
 class ContentPage extends StatefulWidget {
   final String muraName;
@@ -19,10 +21,14 @@ class ContentPage extends StatefulWidget {
 class _ContentPageState extends State<ContentPage> {
   final TextEditingController noteController = TextEditingController();
   final fireStore = Firestore.instance;
-
   final FocusNode _nodeText1 = FocusNode();
+  List<HouseObj> filtedList = null;
 
   String _status;
+
+  ScrollController _myScrollbarController = ScrollController();
+
+  TextEditingController editingController = TextEditingController();
 
   KeyboardActionsConfig _buildConfig(BuildContext context) {
     return KeyboardActionsConfig(
@@ -114,690 +120,772 @@ class _ContentPageState extends State<ContentPage> {
                       ),
                     ],
                   ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.height * 0.02,
+                        right: MediaQuery.of(context).size.height * 0.02,
+                        top: MediaQuery.of(context).size.height * 0.02),
+                    child: Container(
+                      child: TextField(
+                        onChanged: (input) {
+                          filtedList = searchResult(objList, input);
+                          setState(() {});
+                        },
+                        keyboardType: TextInputType.text,
+                        controller: editingController,
+                        decoration: InputDecoration(
+                            labelText: "輸入地址",
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                    ),
+                  ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.04,
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: objList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.02,
-                              left: MediaQuery.of(context).size.width * 0.04,
-                              right: MediaQuery.of(context).size.width * 0.04,
-                              bottom:
-                                  MediaQuery.of(context).size.height * 0.02),
-                          child: Opacity(
-                            opacity: objList[index].status != '未安裝' ? 0.5 : 1,
-                            child: GestureDetector(
-                              onTap: () {
-                                EasyDialog(
-                                    closeButton: false,
-                                    cardColor: Colors.white,
-                                    cornerRadius: 15.0,
-                                    fogOpacity: 0.1,
-                                    width: MediaQuery.of(context).size.width /
-                                        1.568,
-                                    height: MediaQuery.of(context).size.height /
-                                        3.2,
-                                    contentPadding: EdgeInsets.only(
-                                      top: MediaQuery.of(context).size.height /
-                                          70.83,
-                                    ), // Needed for the button design
-                                    contentList: [
-                                      Expanded(
-                                        child: StatefulBuilder(
-                                          builder: (context, setState) {
-                                            return Column(
-                                              children: <Widget>[
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: MediaQuery.of(
+                    child: DraggableScrollbar.semicircle(
+                      controller: _myScrollbarController,
+                      child: ListView.builder(
+                        controller: _myScrollbarController,
+                        itemCount: filtedList == null
+                            ? objList.length
+                            : filtedList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.02,
+                                left: MediaQuery.of(context).size.width * 0.04,
+                                right: MediaQuery.of(context).size.width * 0.04,
+                                bottom:
+                                    MediaQuery.of(context).size.height * 0.02),
+                            child: Opacity(
+                              opacity: filtedList == null
+                                  ? (objList[index].status != '未安裝' ? 0.5 : 1)
+                                  : (filtedList[index].status != '未安裝'
+                                      ? 0.5
+                                      : 1),
+                              child: GestureDetector(
+                                onTap: () {
+                                  EasyDialog(
+                                      closeButton: false,
+                                      cardColor: Colors.white,
+                                      cornerRadius: 15.0,
+                                      fogOpacity: 0.1,
+                                      width: MediaQuery.of(context).size.width /
+                                          1.568,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              3.2,
+                                      contentPadding: EdgeInsets.only(
+                                        top:
+                                            MediaQuery.of(context).size.height /
+                                                70.83,
+                                      ), // Needed for the button design
+                                      contentList: [
+                                        Expanded(
+                                          child: StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return Column(
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        Padding(
+                                                            padding: EdgeInsets.only(
+                                                                left: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    30)),
+                                                        Text(
+                                                          "輸入資訊",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontFamily:
+                                                                  'Yuanti',
+                                                              fontSize: MediaQuery.of(
                                                                           context)
                                                                       .size
                                                                       .width /
-                                                                  30)),
-                                                      Text(
-                                                        "輸入資訊",
-                                                        style: TextStyle(
-                                                            color: Colors.black,
-                                                            fontFamily:
-                                                                'Yuanti',
-                                                            fontSize: MediaQuery.of(
+                                                                  23.05),
+                                                          textScaleFactor: 1.3,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                      child: Row(
+                                                    children: <Widget>[
+                                                      SizedBox(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            20,
+                                                      ),
+                                                      Container(
+                                                        padding: EdgeInsets.only(
+                                                            left: MediaQuery.of(
                                                                         context)
                                                                     .size
                                                                     .width /
-                                                                23.05),
-                                                        textScaleFactor: 1.3,
+                                                                20),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .greenAccent,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child:
+                                                            DropdownButtonHideUnderline(
+                                                                child:
+                                                                    DropdownButton(
+                                                          items: <
+                                                              DropdownMenuItem>[
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '未安裝',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '未安裝',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '已安裝',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '已安裝',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '拒裝',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '拒裝',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '訪視無人',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '訪視無人',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '搬離',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '搬離',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '安置機構',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '安置機構',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '拆除',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '拆除',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '空屋',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '空屋',
+                                                            ),
+                                                            DropdownMenuItem(
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '往生',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'Yuanti',
+                                                                      fontSize:
+                                                                          22,
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              18,
+                                                                              18,
+                                                                              18,
+                                                                              1)),
+                                                                ),
+                                                              ),
+                                                              value: '往生',
+                                                            ),
+                                                          ],
+                                                          hint: Text(
+                                                            '請選擇',
+                                                            style: TextStyle(
+                                                                color: Color
+                                                                    .fromRGBO(
+                                                                        18,
+                                                                        18,
+                                                                        18,
+                                                                        1)),
+                                                          ),
+                                                          onChanged: (value) {
+                                                            _status = value;
+                                                            setState(() {});
+                                                          },
+                                                          value: _status,
+                                                          elevation: 24,
+                                                          style: new TextStyle(
+                                                            fontFamily:
+                                                                'Yuanti',
+                                                            color: Colors.white,
+                                                            fontSize: 22,
+                                                          ),
+                                                          icon: Icon(Icons
+                                                              .arrow_drop_down),
+                                                          iconSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              20,
+                                                          iconEnabledColor:
+                                                              Color.fromRGBO(18,
+                                                                  18, 18, 1),
+                                                        )),
                                                       ),
                                                     ],
-                                                  ),
-                                                ),
-                                                Expanded(
+                                                  )),
+                                                  Expanded(
+                                                    flex: 1,
                                                     child: Row(
-                                                  children: <Widget>[
-                                                    SizedBox(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              20,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        Padding(
+                                                            padding: EdgeInsets.only(
+                                                                left: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    30)),
+                                                        Text(
+                                                          "備註",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontFamily:
+                                                                  'Yuanti',
+                                                              fontSize: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width /
+                                                                  23.05),
+                                                          textScaleFactor: 1.3,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Container(
+                                                  ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Padding(
                                                       padding: EdgeInsets.only(
                                                           left: MediaQuery.of(
                                                                       context)
                                                                   .size
                                                                   .width /
                                                               20),
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            Colors.greenAccent,
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10)),
-                                                      ),
-                                                      child:
-                                                          DropdownButtonHideUnderline(
-                                                              child:
-                                                                  DropdownButton(
-                                                        items: <
-                                                            DropdownMenuItem>[
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '未安裝',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '未安裝',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '已安裝',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '已安裝',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '拒裝',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '拒裝',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '訪視無人',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '訪視無人',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '搬離',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '搬離',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '安置機構',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '安置機構',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '拆除',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '拆除',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '空屋',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '空屋',
-                                                          ),
-                                                          DropdownMenuItem(
-                                                            child: Center(
-                                                              child: Text(
-                                                                '往生',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        'Yuanti',
-                                                                    fontSize:
-                                                                        22,
-                                                                    color: Color
-                                                                        .fromRGBO(
-                                                                            18,
-                                                                            18,
-                                                                            18,
-                                                                            1)),
-                                                              ),
-                                                            ),
-                                                            value: '往生',
-                                                          ),
-                                                        ],
-                                                        hint: Text(
-                                                          '請選擇',
+                                                      child: KeyboardActions(
+                                                        config: _buildConfig(
+                                                            context),
+                                                        child: TextField(
+                                                          onChanged: (data) {},
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .text,
+                                                          focusNode: _nodeText1,
+                                                          controller:
+                                                              noteController,
                                                           style: TextStyle(
-                                                              color: Color
-                                                                  .fromRGBO(
-                                                                      18,
-                                                                      18,
-                                                                      18,
-                                                                      1)),
+                                                              color:
+                                                                  Colors.black),
+                                                          maxLines: 1,
+                                                          decoration: InputDecoration(
+                                                              hintStyle: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                              hintText:
+                                                                  '點此填寫備註'),
                                                         ),
-                                                        onChanged: (value) {
-                                                          _status = value;
-                                                          setState(() {});
-                                                        },
-                                                        value: _status,
-                                                        elevation: 24,
-                                                        style: new TextStyle(
-                                                          fontFamily: 'Yuanti',
-                                                          color: Colors.white,
-                                                          fontSize: 22,
-                                                        ),
-                                                        icon: Icon(Icons
-                                                            .arrow_drop_down),
-                                                        iconSize: MediaQuery.of(
-                                                                    context)
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
                                                                 .size
                                                                 .height /
-                                                            20,
-                                                        iconEnabledColor:
-                                                            Color.fromRGBO(
-                                                                18, 18, 18, 1),
-                                                      )),
-                                                    ),
-                                                  ],
-                                                )),
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      Padding(
-                                                          padding: EdgeInsets.only(
-                                                              left: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width /
-                                                                  30)),
-                                                      Text(
-                                                        "備註",
-                                                        style: TextStyle(
-                                                            color: Colors.black,
-                                                            fontFamily:
-                                                                'Yuanti',
-                                                            fontSize: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width /
-                                                                23.05),
-                                                        textScaleFactor: 1.3,
-                                                      ),
-                                                    ],
+                                                            100,
                                                   ),
-                                                ),
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            20),
-                                                    child: KeyboardActions(
-                                                      config:
-                                                          _buildConfig(context),
-                                                      child: TextField(
-                                                        onChanged: (data) {},
-                                                        keyboardType:
-                                                            TextInputType.text,
-                                                        focusNode: _nodeText1,
-                                                        controller:
-                                                            noteController,
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.black),
-                                                        maxLines: 1,
-                                                        decoration: InputDecoration(
-                                                            hintStyle: TextStyle(
-                                                                color: Colors
-                                                                    .grey),
-                                                            border: InputBorder
-                                                                .none,
-                                                            hintText: '點此填寫備註'),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      100,
-                                                ),
-                                                Expanded(
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Expanded(
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .greenAccent,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              bottomLeft: Radius
-                                                                  .circular(
-                                                                      10.0),
+                                                  Expanded(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .greenAccent,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .only(
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                              ),
+                                                            ),
+                                                            child: FlatButton(
+                                                              child: Text(
+                                                                "Cancel",
+                                                                textScaleFactor:
+                                                                    1.6,
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        'LilitaOne',
+                                                                    fontSize: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        24.5),
+                                                              ),
+                                                              onPressed: () {
+                                                                _status = null;
+                                                                noteController
+                                                                    .clear();
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
                                                             ),
                                                           ),
-                                                          child: FlatButton(
+                                                        ),
+                                                        SizedBox(
+                                                          width: 1,
+                                                        ),
+                                                        Expanded(
+                                                          child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .greenAccent,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .only(
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                              ),
+                                                            ),
+                                                            child: FlatButton(
+                                                              child: Text(
+                                                                "OK",
+                                                                textScaleFactor:
+                                                                    1.6,
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        'LilitaOne',
+                                                                    fontSize: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        24.5),
+                                                              ),
+                                                              onPressed: () {
+                                                                setState(() {});
+                                                                if (filtedList ==
+                                                                    null) {
+                                                                  objList[index]
+                                                                          .status =
+                                                                      _status;
+                                                                  if (noteController
+                                                                          .text
+                                                                          .length !=
+                                                                      0) {
+                                                                    objList[index]
+                                                                            .note =
+                                                                        noteController
+                                                                            .text;
+                                                                  }
+                                                                  if (objList[index]
+                                                                          .status !=
+                                                                      null) {
+                                                                    uploadDialogData(
+                                                                        objList[
+                                                                            index]);
+                                                                  }
+                                                                } else {
+                                                                  filtedList[index]
+                                                                          .status =
+                                                                      _status;
+                                                                  if (noteController
+                                                                          .text
+                                                                          .length !=
+                                                                      0) {
+                                                                    filtedList[index]
+                                                                            .note =
+                                                                        noteController
+                                                                            .text;
+                                                                  }
+                                                                  if (filtedList[
+                                                                              index]
+                                                                          .status !=
+                                                                      null) {
+                                                                    uploadDialogData(
+                                                                        filtedList[
+                                                                            index]);
+                                                                  }
+                                                                }
+
+                                                                noteController
+                                                                    .clear();
+                                                                _status = null;
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      ]).show(context);
+                                },
+                                child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.18,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 10,
+                                        spreadRadius: 3,
+                                        offset: Offset(3, 3),
+                                      ),
+                                    ],
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4)),
+                                    color: Colors.white,
+                                  ),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              flex: 1,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 10,
+                                                    top: 10,
+                                                    bottom: 10),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  10)),
+                                                      color: Color.fromRGBO(
+                                                          251, 235, 204, 1)),
+                                                  child: Center(
+                                                      child: Text(
+                                                    filtedList == null
+                                                        ? (objList[index]
+                                                            .number
+                                                            .toString())
+                                                        : (filtedList[index]
+                                                            .number
+                                                            .toString()),
+                                                    style: TextStyle(
+                                                        fontFamily: 'LilitaOne',
+                                                        fontSize: 28),
+                                                  )),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.01,
+                                            ),
+                                            Expanded(
+                                                flex: 4,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Color
+                                                                  .fromRGBO(
+                                                                      251,
+                                                                      235,
+                                                                      204,
+                                                                      1),
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10))),
+                                                          child: Center(
                                                             child: Text(
-                                                              "Cancel",
-                                                              textScaleFactor:
-                                                                  1.6,
+                                                              filtedList == null
+                                                                  ? (objList[
+                                                                          index]
+                                                                      .address)
+                                                                  : (filtedList[
+                                                                          index]
+                                                                      .address),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                               style: TextStyle(
                                                                   fontFamily:
-                                                                      'LilitaOne',
-                                                                  fontSize: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width /
-                                                                      24.5),
+                                                                      'Yuanti',
+                                                                  fontSize: 16),
                                                             ),
-                                                            onPressed: () {
-                                                              _status = null;
-                                                              noteController
-                                                                  .clear();
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
                                                           ),
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                        width: 1,
+                                                        height: 5,
                                                       ),
                                                       Expanded(
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .greenAccent,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              bottomRight:
-                                                                  Radius
-                                                                      .circular(
-                                                                          10.0),
+                                                        flex: 2,
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Expanded(
+                                                                flex: 3,
+                                                                child: Padding(
+                                                                  padding: EdgeInsets.only(
+                                                                      left: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.03),
+                                                                  child: Column(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      Container(
+                                                                        child:
+                                                                            Row(
+                                                                          children: <
+                                                                              Widget>[
+                                                                            Text(
+                                                                              '狀態 : ${filtedList == null ? (objList[index].status) : (filtedList[index].status)}',
+                                                                              style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontFamily: 'Yuanti',
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        child:
+                                                                            Row(
+                                                                          children: <
+                                                                              Widget>[
+                                                                            Text(
+                                                                              '安裝人 : ${filtedList == null ? (objList[index].installed) : (filtedList[index].installed)}',
+                                                                              style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontFamily: 'Yuanti',
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Container(
+                                                                        child:
+                                                                            Row(
+                                                                          children: <
+                                                                              Widget>[
+                                                                            Text(
+                                                                              '備註 : ${filtedList == null ? (objList[index].note) : (filtedList[index].note)}',
+                                                                              style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontFamily: 'Yuanti',
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                )),
+                                                            Expanded(
+                                                              flex: 1,
+                                                              child:
+                                                                  GestureDetector(
+                                                                onTap: () {
+                                                                  String
+                                                                      toLaunch =
+                                                                      'https://www.google.com/maps/dir/?api=1&destination='
+                                                                      '${filtedList == null ? objList[index].geo.latitude : filtedList[index].geo.latitude},'
+                                                                      '${filtedList == null ? objList[index].geo.longitude : filtedList[index].geo.longitude}'
+                                                                      '&travelmode=driving';
+                                                                  print(
+                                                                      toLaunch);
+                                                                  _launchUniversalLinkIos(
+                                                                      toLaunch);
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  child: Image
+                                                                      .asset(
+                                                                    'images/Navigation.png',
+                                                                    scale: 11,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                          child: FlatButton(
-                                                            child: Text(
-                                                              "OK",
-                                                              textScaleFactor:
-                                                                  1.6,
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      'LilitaOne',
-                                                                  fontSize: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width /
-                                                                      24.5),
-                                                            ),
-                                                            onPressed: () {
-                                                              objList[index]
-                                                                      .status =
-                                                                  _status;
-                                                              if (noteController
-                                                                      .text
-                                                                      .length !=
-                                                                  0) {
-                                                                objList[index]
-                                                                        .note =
-                                                                    noteController
-                                                                        .text;
-                                                              }
-                                                              if (objList[index]
-                                                                      .status !=
-                                                                  null) {
-                                                                uploadDialogData(
-                                                                    objList[
-                                                                        index]);
-                                                              }
-                                                              noteController
-                                                                  .clear();
-                                                              _status = null;
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                          ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    ]).show(context);
-                              },
-                              child: Container(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.18,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 10,
-                                      spreadRadius: 3,
-                                      offset: Offset(3, 3),
-                                    ),
-                                  ],
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 1,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10,
-                                                  top: 10,
-                                                  bottom: 10),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                10)),
-                                                    color: Color.fromRGBO(
-                                                        251, 235, 204, 1)),
-                                                child: Center(
-                                                    child: Text(
-                                                  objList[index]
-                                                      .number
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontFamily: 'LilitaOne',
-                                                      fontSize: 28),
                                                 )),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.01,
-                                          ),
-                                          Expanded(
-                                              flex: 4,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    Expanded(
-                                                      flex: 1,
-                                                      child: Container(
-                                                        decoration: BoxDecoration(
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                    251,
-                                                                    235,
-                                                                    204,
-                                                                    1),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            10))),
-                                                        child: Center(
-                                                          child: Text(
-                                                            objList[index]
-                                                                .address,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    'Yuanti',
-                                                                fontSize: 16),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    Expanded(
-                                                      flex: 2,
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Expanded(
-                                                              flex: 3,
-                                                              child: Padding(
-                                                                padding: EdgeInsets.only(
-                                                                    left: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width *
-                                                                        0.03),
-                                                                child: Column(
-                                                                  children: <
-                                                                      Widget>[
-                                                                    Container(
-                                                                      child:
-                                                                          Row(
-                                                                        children: <
-                                                                            Widget>[
-                                                                          Text(
-                                                                            '狀態 : ${objList[index].status}',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontFamily: 'Yuanti',
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Container(
-                                                                      child:
-                                                                          Row(
-                                                                        children: <
-                                                                            Widget>[
-                                                                          Text(
-                                                                            '安裝人 : ${objList[index].installed}',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontFamily: 'Yuanti',
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Container(
-                                                                      child:
-                                                                          Row(
-                                                                        children: <
-                                                                            Widget>[
-                                                                          Text(
-                                                                            '備註 : ${objList[index].note}',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontFamily: 'Yuanti',
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              )),
-                                                          Expanded(
-                                                            flex: 1,
-                                                            child:
-                                                                GestureDetector(
-                                                              onTap: () {
-                                                                String
-                                                                    toLaunch =
-                                                                    'https://www.google.com/maps/dir/?api=1&destination=${objList[index].geo.latitude},${objList[index].geo.longitude}&travelmode=driving';
-                                                                _launchUniversalLinkIos(
-                                                                    toLaunch);
-                                                              },
-                                                              child: Container(
-                                                                child:
-                                                                    Image.asset(
-                                                                  'images/Navigation.png',
-                                                                  scale: 11,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
